@@ -1,0 +1,26 @@
+﻿<Window x:Class="InsMesAppClient.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:InsMesAppClient"
+        mc:Ignorable="d"
+        Title="Anlık Mesajlaşma Uygulaması" Height="276" Width="370" Closed="Window_Closed">
+    <StackPanel Margin="3">
+        <StackPanel Orientation="Horizontal">
+            <Label x:Name="LblUsername" Content="Kullanıcı Adınız:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="6"/>
+            <TextBox x:Name="TbxUsername" Width="120" Height="23" Margin="6" TextWrapping="Wrap"
+                     HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <Button x:Name="BtnCon" Content="Bağlan" HorizontalAlignment="Left" 
+                    Margin="6" VerticalAlignment="Top" Width="75" Click="BtnCon_Click"/>
+        </StackPanel>
+        <TextBox x:Name="TbxMesajListesi" Width="335" Height="150" Margin="6" TextWrapping="Wrap" IsReadOnly="True" 
+                 HorizontalAlignment="Left" VerticalAlignment="Top" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+        <StackPanel Orientation="Horizontal">
+            <TextBox x:Name="TbxMesaj" Width="250" Height="23" TextWrapping="Wrap" Margin="6"
+                     AcceptsReturn="True" AcceptsTab="True" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+            <Button x:Name="BtnSend" Content="Gönder" HorizontalAlignment="Left" Margin="6" 
+                    VerticalAlignment="Top" Width="75" Click="BtnSend_Click" IsEnabled="False"/>
+        </StackPanel>
+    </StackPanel>
+</Window>
