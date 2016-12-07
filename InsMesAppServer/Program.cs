@@ -15,7 +15,7 @@ namespace InsMesAppServer
         private static TcpListener serverSocket;
         private static bool IsCommunicate;
         private static TcpClient clientSocket;
-        private static Hashtable ClientList = new Hashtable();
+        public static Hashtable ClientList = new Hashtable();
 
         public static void Main(string[] args)
         {
@@ -26,7 +26,7 @@ namespace InsMesAppServer
             Console.WriteLine("Anlık mesajlaşma sunucusu başladı....");
             Console.WriteLine("Sunucuyu durdurmak için 'ç' harfini giriniz....");
             IsCommunicate = true;
-            Thread comThread = new Thread(Communicate);
+            Thread comThread = new Thread(ReceiveAndBroadcast);
             comThread.Start();
 
             string input = Console.ReadLine();
@@ -41,7 +41,7 @@ namespace InsMesAppServer
             }
         }
 
-        private static void Communicate()
+        private static void ReceiveAndBroadcast()
         {
             while (IsCommunicate)
             {
@@ -62,7 +62,7 @@ namespace InsMesAppServer
                     Console.WriteLine(usernameFromClient + " Katıldı");
 
                     HandleClient client = new HandleClient();
-                    client.Start(clientSocket, usernameFromClient);
+                    client.Start(usernameFromClient, clientSocket);
                 }
                 catch
                 {
@@ -98,22 +98,24 @@ namespace InsMesAppServer
     {
         private TcpClient ClientSocket;
         private string ClientName;
+        private bool IsConnected;
 
-        public void Start(TcpClient inClientSocket, string clientName)
+        public void Start(string clientName, TcpClient inClientSocket)
         {
-            this.ClientSocket = inClientSocket;
             this.ClientName = clientName;
+            this.ClientSocket = inClientSocket;
+            IsConnected = true;
 
-            Thread ctThread = new Thread(DoChat);
-            ctThread.Start();
+            Thread comThread = new Thread(ReceiveAndBroadcast);
+            comThread.Start();
         }
 
-        private void DoChat()
+        private void ReceiveAndBroadcast()
         {
             NetworkStream networkStream;
             BinaryReader reader;
             string dataFromClient;
-            while (true)
+            while (IsConnected)
             {
                 try
                 {
@@ -124,7 +126,16 @@ namespace InsMesAppServer
                     dataFromClient = reader.ReadString();
                     Console.WriteLine(ClientName + ": " + dataFromClient);
 
+                    // Send it to all clients connected
                     Program.Broadcast(dataFromClient, ClientName, false);
+                }
+                catch (EndOfStreamException)
+                {   // Connection is terminated with the client
+                    IsConnected = false;
+                    Program.ClientList.Remove(ClientName);
+
+                    Program.Broadcast(ClientName + " Ayrıldı", ClientName, true);
+                    Console.WriteLine(ClientName + " Ayrıldı");
                 }
                 catch (Exception ex)
                 {

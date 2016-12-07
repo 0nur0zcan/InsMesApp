@@ -16,6 +16,7 @@ namespace InsMesAppClient
 
         private TcpClient ClientSocket = new TcpClient();
         private NetworkStream ServerStream;
+        private bool IsCommunicate;
         private BinaryWriter Writer;
         private BinaryReader Reader;
 
@@ -48,32 +49,41 @@ namespace InsMesAppClient
                 Writer.Flush();
 
                 // Start thread for receiving all msgs
-                Thread clientThread = new Thread(ReceiveMessage);
-                clientThread.Start();
+                IsCommunicate = true;
+                Thread receiverThread = new Thread(ReceiveMessage);
+                receiverThread.Start();
             }
         }
 
         private void BtnSend_Click(object sender, RoutedEventArgs e)
-        {   // Send message to the server
-            Writer.Write(TbxMesaj.Text);
-            Writer.Flush();
+        {
+            try
+            {   // Send message to the server
+                Writer.Write(TbxMesaj.Text);
+                Writer.Flush();
+
+                TbxMesaj.Clear();
+            }
+            catch
+            {   // Connection is terminated
+                BtnSend.IsEnabled = false;
+            }
         }
 
         private void ReceiveMessage()
         {
-            while (true)
+            while (IsCommunicate)
             {
-                ServerStream = ClientSocket.GetStream();
-                Reader = new BinaryReader(ServerStream);
-
                 try
                 {   // Read message
+                    ServerStream = ClientSocket.GetStream();
+                    Reader = new BinaryReader(ServerStream);
+
                     string dataReceived = Reader.ReadString();
                     DisplayMessage(dataReceived);
                 }
                 catch
-                {
-                    // do nothing
+                {   // do nothing
                 }
             }
         }
@@ -83,14 +93,18 @@ namespace InsMesAppClient
             Dispatcher.Invoke(new Action(() => 
             {
                 if (TbxMesajListesi.Text.Equals(""))
-                    TbxMesajListesi.Text = dataReceived;
+                    TbxMesajListesi.Text = ">> " + dataReceived;
                 else
                     TbxMesajListesi.Text = TbxMesajListesi.Text + Environment.NewLine + ">> " + dataReceived;
+
+                TbxMesajListesi.ScrollToEnd();
             }));
         }
 
-        private void Window_Closed(object sender, EventArgs e)
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            IsCommunicate = false;
+
             Writer.Close();
             if (Writer != null)
                 Writer.Dispose();

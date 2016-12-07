@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:InsMesAppClient"
         mc:Ignorable="d"
-        Title="Anlık Mesajlaşma Uygulaması" Height="276" Width="370" Closed="Window_Closed">
+        Title="Anlık Mesajlaşma Uygulaması" Height="276" Width="370" Closing="Window_Closing">
     <StackPanel Margin="3">
         <StackPanel Orientation="Horizontal">
             <Label x:Name="LblUsername" Content="Kullanıcı Adınız:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="6"/>
